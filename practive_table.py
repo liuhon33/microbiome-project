@@ -3,20 +3,28 @@ from biom.table import Table
 data = np.arange(40).reshape(10, 4)
 sample_ids = ['S%d' % i for i in range(4)]
 observ_ids = ['O%d' % i for i in range(10)]
-sample_metadata = [{'environment': 'A'}, {'environment': 'B'},
-                   {'environment': 'A'}, {'environment': 'B'}]
-observ_metadata = [{'taxonomy': ['Bacteria', 'Firmicutes']},
-                   {'taxonomy': ['Bacteria', 'Firmicutes']},
-                   {'taxonomy': ['Bacteria', 'Proteobacteria']},
-                   {'taxonomy': ['Bacteria', 'Proteobacteria']},
-                   {'taxonomy': ['Bacteria', 'Proteobacteria']},
-                   {'taxonomy': ['Bacteria', 'Bacteroidetes']},
-                   {'taxonomy': ['Bacteria', 'Bacteroidetes']},
-                   {'taxonomy': ['Bacteria', 'Firmicutes']},
-                   {'taxonomy': ['Bacteria', 'Firmicutes']},
-                   {'taxonomy': ['Bacteria', 'Firmicutes']}]
-table = Table(data, observ_ids, sample_ids, observ_metadata,
-              sample_metadata, table_id='Example Table')
+sample_metadata = [{'environment': 'A', 'location': 'X'},
+                   {'environment': 'B', 'location': 'Y'},
+                   {'environment': 'A', 'location': 'Z'},
+                   {'environment': 'B', 'location': 'X'}]
+observ_metadata = [{'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Fermenter'},
+                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Fermenter'},
+                   {'taxonomy': ['Bacteria', 'Proteobacteria'], 'functional_group': 'Fermenter'},
+                   {'taxonomy': ['Bacteria', 'Proteobacteria'], 'functional_group': 'Fermenter'},
+                   {'taxonomy': ['Bacteria', 'Proteobacteria'], 'functional_group': 'Fermenter'},
+                   {'taxonomy': ['Bacteria', 'Bacteroidetes'], 'functional_group': 'Degrader'},
+                   {'taxonomy': ['Bacteria', 'Bacteroidetes'], 'functional_group': 'Degrader'},
+                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Degrader'},
+                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Degrader'},
+                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Degrader'}]
+table = Table(
+    data,
+    observ_ids,
+    sample_ids,
+    observ_metadata,
+    sample_metadata,
+    table_id='Example Table'
+)
 """
 Table is a class created in the file biom.table.
 now we created an instance table using the class Table
@@ -65,7 +73,7 @@ filter_g = lambda values, id_, md: md['taxonomy'] == ['Bacteria', 'Proteobacteri
 pro_bac = normed.filter(filter_g, axis='observation', inplace=False)
 
 # test_filter # what does this filter do?
-filter_h = lambda values, id_, md: md['taxonomy']
+filter_h = lambda a, b, c: c['taxonomy']
 abc = table.filter(filter_h, axis='observation', inplace=False)
 
 dict(abc.metadata('O1', 'observation'))
@@ -100,3 +108,8 @@ part_f = lambda id_, md: md['environment']
 env_tables = table.partition(part_f, axis='sample')
 for partition, env_table in env_tables:
     print(partition, env_table.sum('sample'))
+
+# set up the transform
+transform_f = lambda v, i, m: np.where(v % 3 == 0, v, 0)
+mult_of_three = tform = table.transform(transform_f, inplace = False)
+print(mult_of_three)
