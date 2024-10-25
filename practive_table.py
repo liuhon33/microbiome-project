@@ -107,10 +107,10 @@ firm_bac = abc = table.filter(filter_i, axis='observation', inplace=False)
 firm_bac
 
 
-dict(abc.metadata('O1', 'observation'))
-dict(table.metadata('O1', 'observation'))
-dict(abc.metadata('S1', 'sample'))
-dict(table.metadata('S1', 'sample'))
+dict(abc.metadata('Sample1', 'observation'))
+dict(table.metadata('OTU1', 'observation'))
+dict(abc.metadata('Sample1', 'sample'))
+dict(table.metadata('OTU', 'sample'))
 
 """
 >>> abc == table
@@ -144,3 +144,30 @@ for partition, env_table in env_tables:
 transform_f = lambda v, i, m: np.where(v % 3 == 0, v, 0)
 mult_of_three = tform = table.transform(transform_f, inplace = False)
 print(mult_of_three)
+
+"""
+The collapse method allows to aggregate observations or samples
+based on a specific criterion.
+
+example: collapse observatoins(OTU) based on their
+phylum-level taxonomy
+"""
+# Define the index for the phylum level in taxonomy
+phylum_idx = 1
+# Define the collapse function
+# slice it upto phylum_indx + 1, but not including
+collapse_f = lambda id_, md: '; '.join(md['taxonomy'][:phylum_idx + 1])
+# Apply the collapse to the normalized table
+"""
+by comparing the output between mult_of_three
+and collapsed
+notice that 
+for each sample
+1. sort all the rows that are Bacteria; Firmicutes
+2. add the number together
+3. divided by the number of rows derived in 1
+this number is the condensed number
+"""
+collapsed = mult_of_three.collapse(collapse_f, axis='observation')
+print(collapsed)
+
