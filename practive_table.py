@@ -1,29 +1,53 @@
 import numpy as np
-from biom.table import Table
-data = np.arange(40).reshape(10, 4)
-sample_ids = ['S%d' % i for i in range(4)]
-observ_ids = ['O%d' % i for i in range(10)]
-sample_metadata = [{'environment': 'A', 'location': 'X'},
-                   {'environment': 'B', 'location': 'Y'},
-                   {'environment': 'A', 'location': 'Z'},
-                   {'environment': 'B', 'location': 'X'}]
-observ_metadata = [{'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Fermenter'},
-                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Fermenter'},
-                   {'taxonomy': ['Bacteria', 'Proteobacteria'], 'functional_group': 'Fermenter'},
-                   {'taxonomy': ['Bacteria', 'Proteobacteria'], 'functional_group': 'Fermenter'},
-                   {'taxonomy': ['Bacteria', 'Proteobacteria'], 'functional_group': 'Fermenter'},
-                   {'taxonomy': ['Bacteria', 'Bacteroidetes'], 'functional_group': 'Degrader'},
-                   {'taxonomy': ['Bacteria', 'Bacteroidetes'], 'functional_group': 'Degrader'},
-                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Degrader'},
-                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Degrader'},
-                   {'taxonomy': ['Bacteria', 'Firmicutes'], 'functional_group': 'Degrader'}]
+from biom import Table
+import pandas as pd
+
+# Step 1: Define Data Matrix
+# 15 observations (OTUs) x 6 samples
+np.random.seed(42)  # For reproducibility
+data = np.random.randint(50, 500, size=(15, 6))
+
+# Step 2: Define IDs
+sample_ids = [f'Sample{i}' for i in range(1, 7)]
+observ_ids = [f'OTU{i}' for i in range(1, 16)]
+
+# Step 3: Define Metadata
+
+# Sample Metadata with multiple fields
+sample_metadata = [
+    {'environment': 'Forest', 'location': 'North', 'collection_date': '2023-07-01'},
+    {'environment': 'Lake', 'location': 'South', 'collection_date': '2023-07-02'},
+    {'environment': 'Desert', 'location': 'East', 'collection_date': '2023-07-03'},
+    {'environment': 'Forest', 'location': 'West', 'collection_date': '2023-07-04'},
+    {'environment': 'Lake', 'location': 'North', 'collection_date': '2023-07-05'},
+    {'environment': 'Desert', 'location': 'South', 'collection_date': '2023-07-06'}
+]
+
+# Observation Metadata with multiple fields
+observ_metadata = [
+    {'taxonomy': ['Bacteria', 'Firmicutes', 'Bacilli'], 'functional_group': 'Fermenter', 'growth_rate': 'Fast'},
+    {'taxonomy': ['Bacteria', 'Proteobacteria', 'Alpha'], 'functional_group': 'Degrader', 'growth_rate': 'Medium'},
+    {'taxonomy': ['Bacteria', 'Actinobacteria', 'Actinomyces'], 'functional_group': 'Producer', 'growth_rate': 'Slow'},
+    {'taxonomy': ['Bacteria', 'Bacteroidetes', 'Bacteroides'], 'functional_group': 'Detritivore', 'growth_rate': 'Fast'},
+    {'taxonomy': ['Bacteria', 'Firmicutes', 'Clostridia'], 'functional_group': 'Fermenter', 'growth_rate': 'Medium'},
+    {'taxonomy': ['Bacteria', 'Proteobacteria', 'Beta'], 'functional_group': 'Degrader', 'growth_rate': 'Slow'},
+    {'taxonomy': ['Bacteria', 'Actinobacteria', 'Streptomyces'], 'functional_group': 'Producer', 'growth_rate': 'Fast'},
+    {'taxonomy': ['Bacteria', 'Bacteroidetes', 'Prevotella'], 'functional_group': 'Detritivore', 'growth_rate': 'Medium'},
+    {'taxonomy': ['Bacteria', 'Firmicutes', 'Lactobacilli'], 'functional_group': 'Fermenter', 'growth_rate': 'Slow'},
+    {'taxonomy': ['Bacteria', 'Proteobacteria', 'Gamma'], 'functional_group': 'Degrader', 'growth_rate': 'Fast'},
+    {'taxonomy': ['Bacteria', 'Actinobacteria', 'Mycobacterium'], 'functional_group': 'Producer', 'growth_rate': 'Medium'},
+    {'taxonomy': ['Bacteria', 'Bacteroidetes', 'Bacteroides'], 'functional_group': 'Detritivore', 'growth_rate': 'Slow'},
+    {'taxonomy': ['Bacteria', 'Firmicutes', 'Bacilli'], 'functional_group': 'Fermenter', 'growth_rate': 'Fast'},
+    {'taxonomy': ['Bacteria', 'Proteobacteria', 'Delta'], 'functional_group': 'Degrader', 'growth_rate': 'Medium'},
+    {'taxonomy': ['Bacteria', 'Actinobacteria', 'Corynebacterium'], 'functional_group': 'Producer', 'growth_rate': 'Slow'}
+]
 table = Table(
     data,
     observ_ids,
     sample_ids,
     observ_metadata,
     sample_metadata,
-    table_id='Example Table'
+    table_id='Advanced Example Table'
 )
 """
 Table is a class created in the file biom.table.
@@ -63,18 +87,25 @@ O9      0.24    0.25333333333333335
 normed = table.norm(axis='sample', inplace=False)
 
 # filter the "normed" table based on the environment
-filter_f = lambda values, id_, md: md['environment'] == 'A'
+filter_f = lambda values, id_, md: md['environment'] == 'Lake'
 env_a = normed.filter(filter_f, axis='sample', inplace=False)
 
 
 # practice
 # filter the "normed" table based on the bacteria type
-filter_g = lambda values, id_, md: md['taxonomy'] == ['Bacteria', 'Proteobacteria']
+filter_g = lambda values, id_, md: md['taxonomy'] == ['Bacteria', 'Actinobacteria', 'Corynebacterium']
 pro_bac = normed.filter(filter_g, axis='observation', inplace=False)
 
 # test_filter # what does this filter do?
+# filter_h does not do anything
 filter_h = lambda a, b, c: c['taxonomy']
 abc = table.filter(filter_h, axis='observation', inplace=False)
+
+# another filter
+filter_i = lambda values, id_, md: md['taxonomy'][1] == 'Firmicutes'
+firm_bac = abc = table.filter(filter_i, axis='observation', inplace=False)
+firm_bac
+
 
 dict(abc.metadata('O1', 'observation'))
 dict(table.metadata('O1', 'observation'))
