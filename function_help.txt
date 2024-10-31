@@ -1,0 +1,134 @@
+Help on function collapse in biom.Table:
+
+biom.Table.collapse = collapse(self, f, collapse_f=None, norm=True, min_group_size=1, include_collapsed_metadata=True, one_to_many=False, one_to_many_mode='add', one_to_many_md_key='Path', strict=False, axis='sample')
+    Collapse partitions in a table by metadata or by IDs
+
+    Partition data by metadata or IDs and then collapse each partition into
+    a single vector.
+
+    If `include_collapsed_metadata` is ``True``, the metadata for the
+    collapsed partition will be a category named 'collapsed_ids', in which
+    a list of the original ids that made up the partition is retained
+
+    The remainder is only relevant to setting `one_to_many` to ``True``.
+
+    If `one_to_many` is ``True``, allow vectors to collapse into multiple
+    bins if the metadata describe a one-many relationship. Supplied
+    functions must allow for iteration support over the metadata key and
+    must return a tuple of (path, bin) as to describe both the path in the
+    hierarchy represented and the specific bin being collapsed into. The
+    uniqueness of the bin is _not_ based on the path but by the name of the
+    bin.
+
+    The metadata value for the corresponding collapsed column may include
+    more (or less) information about the collapsed data. For example, if
+    collapsing "FOO", and there are vectors that span three associations A,
+    B, and C, such that vector 1 spans A and B, vector 2 spans B and C and
+    vector 3 spans A and C, the resulting table will contain three
+    collapsed vectors:
+
+    - A, containing original vectors 1 and 3
+    - B, containing original vectors 1 and 2
+    - C, containing original vectors 2 and 3
+
+    If a vector maps to the same partition multiple times, it will be
+    counted multiple times.
+
+    There are two supported modes for handling one-to-many relationships
+    via `one_to_many_mode`: ``add`` and `divide`. ``add`` will add the
+    vector counts to each partition that the vector maps to, which may
+    increase the total number of counts in the output table. ``divide``
+    will divide a vectors's counts by the number of metadata that the
+    vector has before adding the counts to each partition. This will not
+    increase the total number of counts in the output table.
+
+    If `one_to_many_md_key` is specified, that becomes the metadata
+    key that describes the collapsed path. If a value is not specified,
+    then it defaults to 'Path'.
+
+    If `strict` is specified, then all metadata pathways operated on
+    must be indexable by `metadata_f`.
+
+    `one_to_many` and `norm` are not supported together.
+
+    `one_to_many` and `collapse_f` are not supported together.
+
+    `one_to_many` and `min_group_size` are not supported together.
+
+    A final note on space consumption. At present, the `one_to_many`
+    functionality requires a temporary dense matrix representation.
+
+    Parameters
+    ----------
+    f : function
+        Function that is used to determine what partition a vector belongs
+        to
+    collapse_f : function, optional
+        Function that collapses a partition in a one-to-one collapse. The
+        expected function signature is:
+
+            dense or sparse_vector <- collapse_f(Table, axis)
+
+        Defaults to a pairwise add.
+
+    norm : bool, optional
+        Defaults to ``True``. If ``True``, normalize the resulting table
+    min_group_size : int, optional
+        Defaults to ``1``. The minimum size of a partition when performing
+        a one-to-one collapse
+    include_collapsed_metadata : bool, optional
+        Defaults to ``True``. If ``True``, retain the collapsed metadata
+        keyed by the original IDs of the associated vectors
+    one_to_many : bool, optional
+        Defaults to ``False``. Perform a one-to-many collapse
+    one_to_many_mode : {'add', 'divide'}, optional
+        The way to reduce two vectors in a one-to-many collapse
+    one_to_many_md_key : str, optional
+        Defaults to "Path". If `include_collapsed_metadata` is ``True``,
+        store the original vector metadata under this key
+    strict : bool, optional
+        Defaults to ``False``. Requires full pathway data within a
+        one-to-many structure
+    axis : {'sample', 'observation'}, optional
+        The axis to collapse
+
+    Returns
+    -------
+    Table
+        The collapsed table
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from biom.table import Table
+
+    Create a ``Table``
+
+    >>> dt_rich = Table(
+    ...    np.array([[5, 6, 7], [8, 9, 10], [11, 12, 13]]),
+    ...    ['1', '2', '3'], ['a', 'b', 'c'],
+    ...    [{'taxonomy': ['k__a', 'p__b']},
+    ...     {'taxonomy': ['k__a', 'p__c']},
+    ...     {'taxonomy': ['k__a', 'p__c']}],
+    ...    [{'barcode': 'aatt'},
+    ...     {'barcode': 'ttgg'},
+    ...     {'barcode': 'aatt'}])
+    >>> print(dt_rich) # doctest: +NORMALIZE_WHITESPACE
+    # Constructed from biom file
+    #OTU ID a   b   c
+    1   5.0 6.0 7.0
+    2   8.0 9.0 10.0
+    3   11.0    12.0    13.0
+
+    Create Function to determine what partition a vector belongs to
+
+    >>> bin_f = lambda id_, x: x['taxonomy'][1]
+    >>> obs_phy = dt_rich.collapse(
+    ...    bin_f, norm=False, min_group_size=1,
+    ...    axis='observation').sort(axis='observation')
+    >>> print(obs_phy) # doctest: +NORMALIZE_WHITESPACE
+    # Constructed from biom file
+    #OTU ID a   b   c
+    p__b    5.0 6.0 7.0
+    p__c    19.0    21.0    23.0
+

@@ -93,6 +93,23 @@ env_a = normed.filter(filter_f, axis='sample', inplace=False)
 
 # practice
 # filter the "normed" table based on the bacteria type
+
+"""
+important note. This is why the lambda function has to take 3 input values,
+even tho 2 of them were not used
+>>> def keep_first5(id_, md):
+...     return id_ in first5_sample_ids
+... 
+>>> subset_table = collapsed.filter(keep_first5, axis='sample', inplace=False)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/hongrui_liu/miniconda/envs/biome/lib/python3.12/site-packages/biom/table.py", line 2380, in filter
+    arr, ids, metadata = _filter(arr,
+                         ^^^^^^^^^^^^
+  File "biom/_filter.pyx", line 132, in biom._filter._filter
+  File "biom/_filter.pyx", line 56, in biom._filter._make_filter_array_general
+TypeError: keep_first5() takes 2 positional arguments but 3 were given
+"""
 filter_g = lambda values, id_, md: md['taxonomy'] == ['Bacteria', 'Actinobacteria', 'Corynebacterium']
 pro_bac = normed.filter(filter_g, axis='observation', inplace=False)
 
@@ -103,25 +120,30 @@ abc = table.filter(filter_h, axis='observation', inplace=False)
 
 # another filter
 filter_i = lambda values, id_, md: md['taxonomy'][1] == 'Firmicutes'
-firm_bac = abc = table.filter(filter_i, axis='observation', inplace=False)
+firm_bac = table.filter(filter_i, axis='observation', inplace=False)
 firm_bac
 
-
-dict(abc.metadata('Sample1', 'observation'))
+# find the metadata for a specific row(observation) or colomn(sample)
+dict(abc.metadata('Sample1', 'sample'))
 dict(table.metadata('OTU1', 'observation'))
 dict(abc.metadata('Sample1', 'sample'))
-dict(table.metadata('OTU', 'sample'))
+dict(table.metadata('OTU1', 'observation'))
 
 """
 >>> abc == table
 True
 """
 
-# find the metadata for a specific row(observation) or colomn(sample)
 table.metadata('S1', 'sample')
 dict(table.metadata('S1', 'sample'))
 dict(table.metadata('O1', 'observation'))
+"""
+>>> table.matrix_data
+<Compressed Sparse Row sparse matrix of dtype 'float64'
+        with 90 stored elements and shape (15, 6)>
+"""
 table.matrix_data
+
 
 # export the metadata to a dataframe
 table.metadata_to_dataframe('observation')
@@ -168,6 +190,16 @@ for each sample
 3. divided by the number of rows derived in 1
 this number is the condensed number
 """
-collapsed = mult_of_three.collapse(collapse_f, axis='observation')
+collapsed = mult_of_three.collapse(collapse_f, axis='observation', norm=False)
 print(collapsed)
 
+
+# this part of the code does not work yet
+"""
+collapsed_g = lambda id_, md: md['taxonomy'][3]
+# collapse_g = lambda id_, md: 
+obs_phy = mult_of_three.collapse(collapsed_g,
+                                 norm=False,
+                                 min_group_size=1,
+                                 axis='observation').sort(axis='observation')
+"""

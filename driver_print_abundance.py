@@ -26,3 +26,6 @@ dict(table.metadata('TACGGAAGGTCCGGGCGTTATCCGGATTTATTGGGTTTAAAGGGAGCGCAGGCCGTCCT
 # Example usage
 sample_id = '10317.000002606'
 print_sample_abundance(table, sample_id)
+
+
+
