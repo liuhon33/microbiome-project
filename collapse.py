@@ -6,7 +6,7 @@ from print_sample_abundance import print_sample_abundance
 table = load_table('dataset/test_export.json')
 
 # Define the index for the phylum level in taxonomy
-phylum_idx = 6
+phylum_idx = 2
 # Define the collapse function
 # slice it upto phylum_indx + 1, but not including
 collapse_f = lambda id_, md: '; '.join(md['taxonomy'][:phylum_idx + 1])
@@ -37,3 +37,11 @@ def keep_first5(values, id_, md):
 # Apply the filter to create a subset table with only the first five samples
 subset_table = collapsed.filter(keep_first5, axis='sample', inplace=False)
 print(subset_table)
+
+# Export the subset_table to a TSV file using direct_io
+output_filename = 'subset_table_class.tsv'
+with open(output_filename, 'w') as f:
+    collapsed.to_tsv(direct_io=f)
+print(f"\nSubset table successfully exported to '{output_filename}'.")
+
+# TO DO: Write a for loop for exporting these data

@@ -1,0 +1,50 @@
+Help on function to_tsv in biom.Table:
+
+biom.Table.to_tsv = to_tsv(self, header_key=None, header_value=None, metadata_formatter=<class 'str'>, observation_column_name='#OTU ID', direct_io=None)
+    Return self as a string in tab delimited form
+
+    Default ``str`` output for the ``Table`` is just row/col ids and table
+    data without any metadata
+
+    Parameters
+    ----------
+    header_key : str or ``None``, optional
+        Defaults to ``None``
+    header_value : str or ``None``, optional
+        Defaults to ``None``
+    metadata_formatter : function, optional
+        Defaults to ``str``.  a function which takes a metadata entry and
+        returns a formatted version that should be written to file
+    observation_column_name : str, optional
+        Defaults to "#OTU ID". The name of the first column in the output
+        table, corresponding to the observation IDs.
+    direct_io : file or file-like object, optional
+        Defaults to ``None``. Must implement a ``write`` function. If
+        `direct_io` is not ``None``, the final output is written directly
+        to `direct_io` during processing.
+
+    Returns
+    -------
+    str
+        tab delimited representation of the Table
+
+    Examples
+    --------
+
+    >>> import numpy as np
+    >>> from biom.table import Table
+
+    Create a 2x3 BIOM table, with observation metadata and no sample
+    metadata:
+
+    >>> data = np.asarray([[0, 0, 1], [1, 3, 42]])
+    >>> table = Table(data, ['O1', 'O2'], ['S1', 'S2', 'S3'],
+    ...               [{'foo': 'bar'}, {'x': 'y'}], None)
+    >>> print(table.to_tsv()) # doctest: +NORMALIZE_WHITESPACE
+    # Constructed from biom file
+    #OTU ID S1      S2      S3
+    O1      0.0     0.0     1.0
+    O2      1.0     3.0     42.0
+    >>> with open("result.tsv", "w") as f:
+            table.to_tsv(direct_io=f)
+
