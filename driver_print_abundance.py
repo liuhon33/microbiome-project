@@ -1,7 +1,12 @@
 import json
 from biom import load_table
 from biom import Table
+# note print_sample_abundance is the modulo name
+# it corresponds to print_sample_abundance.py
+# the second print is the function name
 from print_sample_abundance import print_sample_abundance
+
+
 
 table = load_table('dataset/test_export.json')
 
