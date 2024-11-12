@@ -9,3 +9,5 @@ subset_table_order.tsv
 subset_table_family.tsv
 subset_table_genus.tsv
 subset_table_species.tsv
+subset_tables/
+help/

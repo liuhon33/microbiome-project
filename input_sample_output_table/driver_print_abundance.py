@@ -4,7 +4,7 @@ from biom import Table
 # note print_sample_abundance is the modulo name
 # it corresponds to print_sample_abundance.py
 # the second print is the function name
-from print_sample_abundance import print_sample_abundance
+from input_sample_output_table.print_sample_abundance import print_sample_abundance
 
 
 

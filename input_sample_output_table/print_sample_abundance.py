@@ -1,3 +1,7 @@
+# print_sample_abundance is the function that will print
+# the abundance of each sample, it takes 2 input at least
+# the first one is the table, the second one is the sample_id
+
 import json
 from biom import load_table
 from biom import Table

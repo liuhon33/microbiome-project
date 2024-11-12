@@ -1,3 +1,10 @@
+# this script contains basic example usage of the BIOM Table class. It loads a
+# it can load the table, access the shape of the table, print out the
+# metadata associated with the observations, and print the abundance of a
+# this print_sample_abundance is the initial function I made, the advanced
+# version is in the print_sample_abundance.py file
+
+
 import json
 from biom import load_table
 from biom import Table
