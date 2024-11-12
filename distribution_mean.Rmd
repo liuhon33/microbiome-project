@@ -20,19 +20,19 @@ file_name <- file_name_vector[taxonomy]
 ```
 
 ```{r}
-# Read the TSV file into R
-data <- read_tsv(file_name,
-                 skip = 1)
+# Read the TSV file into R, skip the first row since it contains a description
+mydata <- read_tsv(file_name,
+                   skip = 1)
 
 # Calculate mean and variance for each row
-row_means <- apply(data[, -1], 1, mean)  # Assuming first column is row names
-row_variances <- apply(data[, -1], 1, var)
+row_means <- apply(mydata[, -1], 1, mean)  # Assuming first column is row names
+row_variances <- apply(mydata[, -1], 1, var)
 
 ```
 ```{r}
 # Create a data frame to store the means and variances
 mean_variance_data <- data.frame(
-  Bacteria = data[[1]], # Assuming the first column contains bacteria names
+  Bacteria = mydata[[1]], # Assuming the first column contains bacteria names
   Mean = row_means,
   Variance = row_variances
 )

@@ -1,7 +1,7 @@
 import json
 from biom import load_table
 from biom import Table
-from print_sample_abundance import print_sample_abundance
+from input_sample_output_table.print_sample_abundance import print_sample_abundance
 
 table = load_table('dataset/test_export.json')
 
